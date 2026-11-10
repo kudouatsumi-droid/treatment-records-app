@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#fdeef2"/>
+  <g transform="translate(256 236)" fill="#f0b6c6">
+    <ellipse rx="56" ry="96" transform="rotate(0) translate(0 -80)"/>
+    <ellipse rx="56" ry="96" transform="rotate(72) translate(0 -80)"/>
+    <ellipse rx="56" ry="96" transform="rotate(144) translate(0 -80)"/>
+    <ellipse rx="56" ry="96" transform="rotate(216) translate(0 -80)"/>
+    <ellipse rx="56" ry="96" transform="rotate(288) translate(0 -80)"/>
+  </g>
+  <circle cx="256" cy="236" r="44" fill="#d97c97"/>
+  <text x="256" y="452" text-anchor="middle" font-family="Georgia, serif" font-size="58" fill="#a94a67" letter-spacing="2">Fiore</text>
+</svg>

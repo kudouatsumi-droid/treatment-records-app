@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8d7e0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <!-- 外部への通信を禁止（データの外部送信・アクセス解析を防ぐ） -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; font-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Fiore Note">
+  <title>Fiore Note</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <button type="button" id="backBtn" class="icon-btn" aria-label="戻る" hidden>‹</button>
+    <h1 id="headerTitle" class="app-title">Fiore Note</h1>
+    <button type="button" id="settingsBtn" class="icon-btn" aria-label="設定・バックアップ">⚙</button>
+  </header>
+
+  <main id="app">
+    <!-- ===== お客様一覧 ===== -->
+    <section id="view-list" class="view" hidden>
+      <div class="search-box">
+        <input type="search" id="searchInput" placeholder="お名前で検索" autocomplete="off" aria-label="お名前で検索">
+      </div>
+      <p id="listCount" class="muted small"></p>
+      <ul id="customerList" class="card-list"></ul>
+      <div id="listEmpty" class="empty" hidden></div>
+      <button type="button" id="addCustomerBtn" class="fab">＋ お客様を登録</button>
+    </section>
+
+    <!-- ===== お客様詳細（施術履歴） ===== -->
+    <section id="view-customer" class="view" hidden>
+      <div class="customer-head">
+        <div>
+          <h2 id="customerName" class="customer-name"></h2>
+          <p id="customerMeta" class="muted small"></p>
+        </div>
+        <button type="button" id="editCustomerBtn" class="btn btn-sub btn-small">編集</button>
+      </div>
+      <p id="customerMemo" class="customer-memo" hidden></p>
+      <button type="button" id="addRecordBtn" class="btn btn-primary btn-block">＋ 施術記録を追加</button>
+      <h3 class="section-title">施術履歴（新しい順）</h3>
+      <ul id="recordList" class="record-list"></ul>
+      <div id="recordEmpty" class="empty" hidden>まだ施術記録がありません。<br>「＋ 施術記録を追加」から記録できます。</div>
+    </section>
+
+    <!-- ===== 設定・バックアップ ===== -->
+    <section id="view-settings" class="view" hidden>
+      <div class="panel">
+        <h3>バックアップ（保存）</h3>
+        <p class="small">すべてのお客様情報と施術記録を、1つのファイル（JSON形式）として端末に保存します。<strong>定期的に（できれば毎週）バックアップしてください。</strong></p>
+        <p id="lastBackup" class="muted small"></p>
+        <button type="button" id="exportBtn" class="btn btn-primary btn-block">バックアップファイルを保存</button>
+      </div>
+
+      <div class="panel">
+        <h3>復元（読み込み）</h3>
+        <p class="small">バックアップファイルを読み込んで、データを元に戻します。<br><strong>今アプリに入っているデータは、読み込んだ内容に置き換わります。</strong></p>
+        <label class="btn btn-sub btn-block file-label">
+          バックアップファイルを選ぶ
+          <input type="file" id="importInput" accept=".json,application/json" hidden>
+        </label>
+      </div>
+
+      <div class="panel">
+        <h3>データの状況</h3>
+        <p id="dataStats" class="small"></p>
+        <p id="persistStatus" class="muted small"></p>
+      </div>
+
+      <div class="panel notice">
+        <h3>⚠ 必ずお読みください</h3>
+        <ul class="small notice-list">
+          <li>データは<strong>この端末のこのブラウザの中だけ</strong>に保存されます。インターネットへの送信、クラウド保存、アクセス解析は一切行いません。</li>
+          <li>次の場合、データが<strong>消えることがあります</strong>：ブラウザの履歴・Webサイトデータの消去、ブラウザのアンインストール、端末の故障・紛失・機種変更、プライベート（シークレット）モードでの利用、長期間アプリを開かなかった場合（iPhoneのSafariでは、ホーム画面に追加していないと約7日間使わないと消えることがあります）。</li>
+          <li>別の端末やブラウザとはデータは共有されません。機種変更の際はバックアップファイルを移して復元してください。</li>
+          <li>端末内に保存しても、<strong>個人情報の安全性が保証されるわけではありません</strong>。端末にロック（パスコード・生体認証）をかけ、他人に端末を触らせないでください。</li>
+          <li>バックアップファイルは<strong>暗号化されていない</strong>普通のファイルです。誰でも中身を読めるため、保存場所・送信先に注意し、不要になったら削除してください。</li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h3>動作確認用</h3>
+        <p class="small">架空のお客様と施術記録を追加して、操作を試せます（実在の人物ではありません）。</p>
+        <button type="button" id="sampleBtn" class="btn btn-sub btn-block">サンプルデータを追加</button>
+      </div>
+
+      <div class="panel danger-zone">
+        <h3>すべてのデータを削除</h3>
+        <p class="small">この端末に保存されたお客様情報・施術記録をすべて削除します。元に戻せません。</p>
+        <button type="button" id="wipeBtn" class="btn btn-danger btn-block">すべて削除する</button>
+      </div>
+
+      <p class="muted small center">Fiore Note 試作版 v1.0</p>
+    </section>
+  </main>
+
+  <!-- ===== お客様 登録・編集フォーム ===== -->
+  <dialog id="customerDialog" class="sheet">
+    <form id="customerForm" method="dialog" novalidate>
+      <h2 id="customerDialogTitle" class="sheet-title">お客様を登録</h2>
+      <label class="field">
+        <span class="field-label">お名前・ニックネーム <em class="req">必須</em></span>
+        <input type="text" id="cfName" maxlength="50" autocomplete="off" enterkeyhint="done" required>
+      </label>
+      <label class="field">
+        <span class="field-label">メモ（任意）</span>
+        <textarea id="cfMemo" rows="3" maxlength="1000" placeholder="例：肩こりが気になる／強めの圧が好み"></textarea>
+      </label>
+      <p id="cfError" class="error" hidden></p>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-sub" data-close>キャンセル</button>
+        <button type="submit" class="btn btn-primary">保存</button>
+      </div>
+      <button type="button" id="cfDelete" class="btn btn-danger-text btn-block" hidden>このお客様を削除</button>
+    </form>
+  </dialog>
+
+  <!-- ===== 施術記録 追加・編集フォーム ===== -->
+  <dialog id="recordDialog" class="sheet">
+    <form id="recordForm" method="dialog" novalidate>
+      <h2 id="recordDialogTitle" class="sheet-title">施術記録を追加</h2>
+      <p id="rfCustomer" class="muted small"></p>
+      <label class="field">
+        <span class="field-label">来店日 <em class="req">必須</em></span>
+        <input type="date" id="rfDate" required>
+      </label>
+      <label class="field">
+        <span class="field-label">施術メニュー</span>
+        <input type="text" id="rfMenu" list="menuOptions" maxlength="100" autocomplete="off" placeholder="例：ボディケア60分">
+        <datalist id="menuOptions"></datalist>
+      </label>
+      <div id="menuChips" class="chips" aria-label="よく使うメニュー"></div>
+      <label class="field">
+        <span class="field-label">施術内容・身体の状態・次回へのメモ</span>
+        <textarea id="rfNote" rows="7" maxlength="5000" placeholder="例：右肩の張りが強め。首まわり重点的に。次回は腰も確認。"></textarea>
+      </label>
+      <p id="rfError" class="error" hidden></p>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-sub" data-close>キャンセル</button>
+        <button type="submit" class="btn btn-primary">保存</button>
+      </div>
+      <button type="button" id="rfDelete" class="btn btn-danger-text btn-block" hidden>この記録を削除</button>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
